@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steam Video Games Big Data Clustering & Analytics Dashboard</title>
+  <meta name="description" content="PySpark Big Data Clustering Analysis on 40.8M Steam Reviews. Discover game profiles based on price, rating, popularity, and playtime using K-Means ML." />
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js & Plotly.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              500: '#14b8a6',
+              600: '#0d9488',
+              900: '#134e4a',
+            },
+            steam: {
+              dark: '#171a21',
+              darker: '#0e141b',
+              card: '#1b2838',
+              accent: '#66c0f4',
+              blue: '#1999e3',
+              glow: '#2a475e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0b0f17;
+      color: #e2e8f0;
+    }
+    .glass-card {
+      background: rgba(23, 29, 45, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(102, 192, 244, 0.25);
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #1999e3 0%, #0d9488 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 20px rgba(25, 153, 227, 0.35);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0e141b;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #2a475e;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #66c0f4;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-steam-accent selection:text-black">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-50 bg-[#0b0f17]/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-lg shadow-sky-500/20">
+            <i data-lucide="gamepad-2" class="w-6 h-6 text-black"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-display font-bold text-lg text-white tracking-wide">Steam Analytics</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">PySpark ML</span>
+            </div>
+            <p class="text-xs text-slate-400">40.8M Reviews • K-Means (K=4)</p>
+          </div>
+        </div>
+
+        <!-- Team & GitHub Links -->
+        <div class="flex items-center gap-4">
+          <div class="hidden md:flex items-center gap-2 text-xs">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              <strong>Akilan:</strong> Data Eng & PySpark ML
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <strong>Arvind:</strong> Viz & Inference Lead
+            </span>
+          </div>
+
+          <a href="https://github.com/therealakilan220/Video-Games-Analysis" target="_blank" rel="noopener noreferrer"
+             class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition border border-slate-700 shadow-sm">
+            <i data-lucide="github" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">GitHub Repository</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="bg-[#0e141b] border-b border-slate-800 sticky top-16 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex space-x-1 overflow-x-auto py-2.5 custom-scrollbar" id="nav-tabs">
+        <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview & Metrics
+        </button>
+        <button onclick="switchTab('space2d3d')" id="tab-space2d3d" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> 2D & 3D Feature Space
+        </button>
+        <button onclick="switchTab('catalog')" id="tab-catalog" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="database" class="w-4 h-4"></i> Game Explorer Table
+        </button>
+        <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="flask-conical" class="w-4 h-4"></i> Live Cluster Predictor
+        </button>
+        <button onclick="switchTab('insights')" id="tab-insights" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="file-text" class="w-4 h-4"></i> Arvind's Inference Report
+        </button>
+        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
+          <i data-lucide="cpu" class="w-4 h-4"></i> PySpark Architecture
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+    <!-- ==================== TAB 1: OVERVIEW & METRICS ==================== -->
+    <div id="view-overview" class="space-y-8">
+      
+      <!-- HERO BANNER -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-[#131e2e] to-[#0c131d] border border-slate-800 p-6 sm:p-8 shadow-2xl">
+        <div class="absolute -right-12 -top-12 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-12 -bottom-12 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold mb-3">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Model Validated • Optimal Silhouette Peak (0.4663)
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold font-display text-white tracking-tight leading-tight">
+            Video Games Clustering Analysis via Distributed PySpark
+          </h1>
+          <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Unsupervised machine learning analysis on <span class="text-white font-semibold">40,848,659 Steam player reviews</span>. Grouped 318 representative games into 4 distinct commercial archetypes across price, customer ratings, popularity, and playtime engagement.
+          </p>
+        </div>
+
+        <!-- STATS COUNTERS -->
+        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="glass-card rounded-xl p-4 text-center">
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Raw Reviews</p>
+            <p class="mt-1 text-2xl sm:text-3xl font-bold font-display text-sky-400">40.85M</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Steam Reviews 2021</p>
+          </div>
+          <div class="glass-card rounded-xl p-4 text-center">
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Analyzed Games</p>
+            <p class="mt-1 text-2xl sm:text-3xl font-bold font-display text-teal-400">318</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Aggregated Titles</p>
+          </div>
+          <div class="glass-card rounded-xl p-4 text-center">
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Optimal K</p>
+            <p class="mt-1 text-2xl sm:text-3xl font-bold font-display text-amber-400">K = 4</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">WSSSE Cost: 537.02</p>
+          </div>
+          <div class="glass-card rounded-xl p-4 text-center">
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Silhouette Score</p>
+            <p class="mt-1 text-2xl sm:text-3xl font-bold font-display text-emerald-400">0.4663</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Peak across K ∈ [2,10]</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 CLUSTER SUMMARY CARDS -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold font-display text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-sky-400"></i> Discovered Game Archetypes (K = 4)
+          </h2>
+          <span class="text-xs text-slate-400">Click any card to inspect in table</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="cluster-cards-container">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- MODEL EVALUATION CHARTS (ELBOW + CLUSTER PROFILES) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Elbow & Silhouette Chart -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="line-chart" class="w-4 h-4 text-sky-400"></i> Model Optimization: Elbow & Silhouette Curve
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Diminishing WSSSE cost vs. Peak silhouette separation at K=4</p>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Optimal: K=4
+            </span>
+          </div>
+          <div class="h-64 sm:h-72">
+            <canvas id="chart-elbow-silhouette"></canvas>
+          </div>
+        </div>
+
+        <!-- Cluster Size Distribution Doughnut -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-teal-400"></i> Cluster Size Breakdown
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">318 games categorized across 4 clusters</p>
+            </div>
+          </div>
+          <div class="h-64 sm:h-72 flex items-center justify-center">
+            <canvas id="chart-cluster-pie"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURE AVERAGES BAR CHART -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-400"></i> Cluster Feature Profiles Comparison
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Compare Price, Rating %, Popularity Reviews, and Playtime Hours across clusters</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-400">Metric:</label>
+            <select id="metric-select" onchange="updateFeatureChart()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-500">
+              <option value="avg_rating_percent">Rating (% Positive)</option>
+              <option value="avg_playtime_hours">Average Playtime (Hours)</option>
+              <option value="avg_price">Average Price ($)</option>
+              <option value="avg_popularity_reviews">Average Popularity (# Reviews)</option>
+            </select>
+          </div>
+        </div>
+        <div class="h-64 sm:h-72">
+          <canvas id="chart-feature-bars"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 2: 2D & 3D FEATURE SPACE ==================== -->
+    <div id="view-space2d3d" class="hidden space-y-8">
+      
+      <!-- Interactive 3D Scatter Plot (Plotly) -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-semibold mb-1">
+              <i data-lucide="box" class="w-3.5 h-3.5"></i> Interactive WebGL 3D
+            </div>
+            <h2 class="text-xl font-bold font-display text-white">3D Feature Space: Playtime vs. Rating vs. Price</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Drag to rotate, scroll to zoom, hover to inspect individual games</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="reset3DPlot()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Camera
+            </button>
+          </div>
+        </div>
+        <div id="plotly-3d-scatter" class="w-full h-[500px] rounded-xl overflow-hidden bg-slate-950/60 border border-slate-800"></div>
+      </div>
+
+      <!-- 2D Custom Interactive Scatter Plot -->
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold font-display text-white flex items-center gap-2">
+              <i data-lucide="scatter-chart" class="w-5 h-5 text-teal-400"></i> Dynamic 2D Bi-Variable Scatter Plot
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Select custom X and Y dimensions to explore feature separation</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">X-Axis:</span>
+              <select id="scatter-x-axis" onchange="render2DScatter()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <option value="playtime_hours" selected>Playtime (Hours)</option>
+                <option value="rating_percent">Rating (%)</option>
+                <option value="price">Price ($)</option>
+                <option value="popularity">Popularity (# Reviews)</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">Y-Axis:</span>
+              <select id="scatter-y-axis" onchange="render2DScatter()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <option value="rating_percent" selected>Rating (%)</option>
+                <option value="playtime_hours">Playtime (Hours)</option>
+                <option value="price">Price ($)</option>
+                <option value="popularity">Popularity (# Reviews)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="h-96">
+          <canvas id="chart-2d-scatter"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 3: GAME CATALOG & EXPLORER ==================== -->
+    <div id="view-catalog" class="hidden space-y-6">
+      
+      <!-- FILTER & SEARCH BAR -->
+      <div class="glass-card rounded-2xl p-6 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+            <input type="text" id="game-search-input" oninput="applyFilters()" placeholder="Search 318 games (e.g., Skyrim, Among Us, Factorio, NBA)..."
+                   class="w-full bg-slate-900/90 border border-slate-700 text-slate-200 placeholder-slate-500 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportTableCSV()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-2 shadow-sm">
+              <i data-lucide="download" class="w-4 h-4 text-teal-400"></i> Export Filtered CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- CLUSTER FILTER PILLS -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
+          <span class="text-xs text-slate-400 mr-1">Cluster:</span>
+          <button onclick="setClusterFilter('all')" id="filter-pill-all" class="px-3 py-1 text-xs rounded-full font-medium transition bg-sky-500 text-white shadow-sm shadow-sky-500/30">All (318)</button>
+          <button onclick="setClusterFilter('0')" id="filter-pill-0" class="px-3 py-1 text-xs rounded-full font-medium transition bg-slate-800 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10">0: Budget & F2P Hits (56)</button>
+          <button onclick="setClusterFilter('1')" id="filter-pill-1" class="px-3 py-1 text-xs rounded-full font-medium transition bg-slate-800 text-blue-400 border border-blue-500/30 hover:bg-blue-500/10">1: Mid-Tier Indie (117)</button>
+          <button onclick="setClusterFilter('2')" id="filter-pill-2" class="px-3 py-1 text-xs rounded-full font-medium transition bg-slate-800 text-red-400 border border-red-500/30 hover:bg-red-500/10">2: Underperforming (30)</button>
+          <button onclick="setClusterFilter('3')" id="filter-pill-3" class="px-3 py-1 text-xs rounded-full font-medium transition bg-slate-800 text-amber-400 border border-amber-500/30 hover:bg-amber-500/10">3: AAA Blockbusters (115)</button>
+        </div>
+      </div>
+
+      <!-- DATA TABLE -->
+      <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900/90 text-xs uppercase text-slate-400 tracking-wider border-b border-slate-800">
+              <tr>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white" onclick="sortTable('game_name')">
+                  <div class="flex items-center gap-1.5">Game Title <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white" onclick="sortTable('cluster_id')">
+                  <div class="flex items-center gap-1.5">Cluster Archetype <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white text-right" onclick="sortTable('price')">
+                  <div class="flex items-center justify-end gap-1.5">Price ($) <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white text-right" onclick="sortTable('rating_percent')">
+                  <div class="flex items-center justify-end gap-1.5">Rating (%) <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white text-right" onclick="sortTable('popularity')">
+                  <div class="flex items-center justify-end gap-1.5">Popularity (Reviews) <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 cursor-pointer hover:text-white text-right" onclick="sortTable('playtime_hours')">
+                  <div class="flex items-center justify-end gap-1.5">Avg Playtime <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i></div>
+                </th>
+                <th scope="col" class="px-6 py-4 text-center">Steam ID</th>
+              </tr>
+            </thead>
+            <tbody id="games-table-body" class="divide-y divide-slate-800/60">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION & RESULTS INFO -->
+        <div class="p-4 bg-slate-900/60 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <div id="table-results-count">Showing 1 to 20 of 318 games</div>
+          <div class="flex items-center gap-2" id="table-pagination-controls">
+            <!-- Buttons dynamically generated -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 4: LIVE CLUSTER PREDICTOR ==================== -->
+    <div id="view-simulator" class="hidden space-y-8">
+      
+      <div class="glass-card rounded-2xl p-6 sm:p-8">
+        <div class="max-w-2xl mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold mb-2">
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Live K-Means Inference Engine
+          </div>
+          <h2 class="text-2xl font-bold font-display text-white">Interactive Cluster Predictor (What-If Simulator)</h2>
+          <p class="text-slate-300 text-sm mt-1">
+            Input arbitrary commercial parameters for a video game. The simulator applies the exact Spark feature transformation (<code class="text-teal-300 font-mono text-xs">log1p + StandardScaler</code>) and computes Euclidean distances to the 4 cluster centroids in real-time.
+          </p>
+        </div>
+
+        <!-- PRESET BUTTONS -->
+        <div class="mb-6">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Quick Presets:</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="loadPreset('f2p')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 text-xs font-medium transition">
+              🎮 Viral Free-to-Play Hit (e.g. Among Us)
+            </button>
+            <button onclick="loadPreset('indie')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 border border-blue-500/30 text-xs font-medium transition">
+              🎨 Premium Indie Gem (e.g. Hades / Hollow Knight)
+            </button>
+            <button onclick="loadPreset('aaa')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs font-medium transition">
+              ⚔️ 100+ Hour AAA RPG (e.g. Skyrim / Witcher)
+            </button>
+            <button onclick="loadPreset('flop')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-red-400 border border-red-500/30 text-xs font-medium transition">
+              ⚠️ Troubled Launch / Negative Port
+            </button>
+          </div>
+        </div>
+
+        <!-- SIMULATOR INPUT GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- CONTROLS COLUMN -->
+          <div class="lg:col-span-6 space-y-5 bg-slate-900/60 p-6 rounded-xl border border-slate-800">
+            
+            <!-- Price Slider -->
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-300 mb-1.5">
+                <span>Price (USD):</span>
+                <span id="val-price" class="text-sky-400 font-bold font-mono">$19.99</span>
+              </div>
+              <input type="range" id="input-price" min="0" max="70" step="0.5" value="19.99" oninput="runPrediction()"
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-400">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>$0.00 (F2P)</span>
+                <span>$35.00</span>
+                <span>$70.00 (Full AAA)</span>
+              </div>
+            </div>
+
+            <!-- Rating Slider -->
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-300 mb-1.5">
+                <span>Positive Rating (%):</span>
+                <span id="val-rating" class="text-teal-400 font-bold font-mono">92.0%</span>
+              </div>
+              <input type="range" id="input-rating" min="10" max="100" step="0.5" value="92.0" oninput="runPrediction()"
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-400">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>10% (Overwhelmingly Negative)</span>
+                <span>50% (Mixed)</span>
+                <span>100% (Overwhelmingly Positive)</span>
+              </div>
+            </div>
+
+            <!-- Popularity Slider -->
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-300 mb-1.5">
+                <span>Popularity (Reviews):</span>
+                <span id="val-popularity" class="text-amber-400 font-bold font-mono">15,000</span>
+              </div>
+              <input type="range" id="input-popularity" min="100" max="500000" step="500" value="15000" oninput="runPrediction()"
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-400">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>100 (Niche)</span>
+                <span>50,000 (Popular)</span>
+                <span>500,000+ (Mega Hit)</span>
+              </div>
+            </div>
+
+            <!-- Playtime Slider -->
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-300 mb-1.5">
+                <span>Average Playtime (Hours):</span>
+                <span id="val-playtime" class="text-purple-400 font-bold font-mono">45.0 hrs</span>
+              </div>
+              <input type="range" id="input-playtime" min="1" max="500" step="1" value="45" oninput="runPrediction()"
+                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-400">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>1 hr (Casual/Short)</span>
+                <span>100 hrs</span>
+                <span>500 hrs (Endless Sandbox)</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- PREDICTION OUTPUT COLUMN -->
+          <div class="lg:col-span-6 flex flex-col justify-between space-y-6">
+            
+            <div id="prediction-card" class="p-6 rounded-2xl border transition-all duration-300 shadow-xl">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Predicted Cluster Assignment</span>
+                <span id="pred-badge" class="px-3 py-1 rounded-full text-xs font-bold border">Cluster 1</span>
+              </div>
+              <h3 id="pred-title" class="text-2xl font-black font-display text-white mb-2">Mid-Tier & Niche Indie Favorites</h3>
+              <p id="pred-desc" class="text-sm text-slate-300 leading-relaxed mb-4">
+                Premium indie pricing with strong critical praise and dedicated engaged communities.
+              </p>
+              
+              <!-- Centroid Distance Probabilities -->
+              <div class="space-y-2 pt-4 border-t border-slate-800/80">
+                <p class="text-xs font-semibold text-slate-400 mb-2">Confidence by Cluster Proximity:</p>
+                <div id="distance-breakdown" class="space-y-2">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-4 text-xs text-slate-400 flex items-start gap-2.5">
+              <i data-lucide="info" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
+              <span>
+                Standardization formula applied: <code class="text-slate-200">z = (log1p(x) - μ) / σ</code> using dataset empirical constants computed by the PySpark pipeline.
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 5: ARVIND'S INFERENCE REPORT & SCRIPT ==================== -->
+    <div id="view-insights" class="hidden space-y-8">
+      
+      <!-- REPORT HEADER -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold mb-2">
+              <i data-lucide="award" class="w-3.5 h-3.5"></i> Arvind's Research Deliverable
+            </div>
+            <h2 class="text-2xl font-bold font-display text-white">Cluster Interpretation, Visualizations & Strategic Inferences</h2>
+            <p class="text-slate-400 text-xs mt-1">Lead: <strong>Arvind</strong> • Verified from Akilan's Big Data PySpark Outputs</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="https://github.com/therealakilan220/Video-Games-Analysis/blob/main/exports/Arvind_Cluster_Interpretation_and_Inference_Report.md" target="_blank"
+               class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-2">
+              <i data-lucide="file-code" class="w-4 h-4 text-amber-400"></i> View Raw Markdown
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 KEY STRATEGIC INFERENCES -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">1</div>
+            <h4 class="font-bold text-white text-sm">Price ≠ Satisfaction</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Cluster 0 (Budget/F2P) achieves the highest user satisfaction (<strong>95.63%</strong>), outranking full-priced AAA blockbusters (<strong>89.69%</strong>). Lower barrier to entry creates higher player goodwill.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">2</div>
+            <h4 class="font-bold text-white text-sm">Playtime Separates Giants</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              While Cluster 0 and Cluster 3 both achieve viral status, Cluster 3 generates over <strong>6× higher average playtime (224.2 hrs vs. 36.9 hrs)</strong>, powered by modding (<em>Skyrim</em>) and deep sandbox loops (<em>Factorio</em>).
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center font-bold text-sm">3</div>
+            <h4 class="font-bold text-white text-sm">The "Review Penalty"</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Cluster 2 isolates titles suffering from aggressive monetization or botched technical ports (e.g. <em>NBA 2K21</em>, <em>Deus Ex: The Fall</em>), resulting in sub-38% user sentiment regardless of franchise pedigree.
+            </p>
+          </div>
+        </div>
+
+        <!-- PRESENTATION SPEAKING SCRIPT -->
+        <div class="mt-8 pt-6 border-t border-slate-800">
+          <h3 class="text-lg font-bold font-display text-white flex items-center gap-2 mb-4">
+            <i data-lucide="mic" class="w-5 h-5 text-sky-400"></i> Arvind's Presentation Speaking Script
+          </h3>
+          <div class="space-y-3 font-mono text-xs text-slate-300 bg-slate-950 p-5 rounded-xl border border-slate-800 leading-relaxed">
+            <p><span class="text-teal-400 font-bold">[Slide 1: Overview & Distribution]</span> "Hello everyone. Building on Akilan's PySpark data processing and K-Means modeling, our unsupervised clustering on 40.8 million Steam reviews grouped games into 4 distinct commercial archetypes..."</p>
+            <p><span class="text-sky-400 font-bold">[Slide 2: Cluster Profiles & Key Metrics]</span> "Cluster 0 represents 'Budget & Free-to-Play Hits' with near-perfect 95.6% ratings and low prices. Cluster 1 captures 'Mid-Tier Indie Favorites' with dedicated followings. Cluster 2 isolates 'Underperforming Titles' below 38%. Cluster 3 represents 'AAA Blockbusters and Endless Time-Sinks' averaging over 224 hours."</p>
+            <p><span class="text-amber-400 font-bold">[Slide 3: Visualizations & Case Studies]</span> "Looking at our 2D/3D feature space, we clearly observe how playtime and rating separate viral hits like Among Us from massive time-sinks like Skyrim and Factorio..."</p>
+            <p><span class="text-purple-400 font-bold">[Slide 4: Key Inferences & Nuances]</span> "Our primary takeaway is that player satisfaction is highest in low-barrier, highly polished games. However, we must account for limitations such as review sentiment bias and game age accumulation."</p>
+          </div>
+        </div>
+
+        <!-- PROJECT LIMITATIONS -->
+        <div class="mt-8 pt-6 border-t border-slate-800">
+          <h3 class="text-lg font-bold font-display text-white flex items-center gap-2 mb-4">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i> Project Nuances & Limitations
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-300">
+            <div class="p-4 rounded-lg bg-slate-900/60 border border-slate-800">
+              <strong class="text-white block mb-1">1. Review Count as Popularity Proxy:</strong>
+              Total review counts measure community vocalness and historical footprint rather than live concurrent player count.
+            </div>
+            <div class="p-4 rounded-lg bg-slate-900/60 border border-slate-800">
+              <strong class="text-white block mb-1">2. Review Sentiment Bias:</strong>
+              Players with polarized emotional responses (ecstatic or deeply frustrated) leave reviews at higher rates than average users.
+            </div>
+            <div class="p-4 rounded-lg bg-slate-900/60 border border-slate-800">
+              <strong class="text-white block mb-1">3. Price Dynamics & Historic Discounts:</strong>
+              Dataset reflects snapshot listing prices, without fully weighting historical 80% seasonal Steam sales or humble bundles.
+            </div>
+            <div class="p-4 rounded-lg bg-slate-900/60 border border-slate-800">
+              <strong class="text-white block mb-1">4. Game Age Accumulation:</strong>
+              Legacy titles (e.g. <em>Skyrim</em> released in 2011) had over a decade to accrue reviews compared to newer releases.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 6: PYSPARK ARCHITECTURE ==================== -->
+    <div id="view-pipeline" class="hidden space-y-8">
+      
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800">
+        <div class="pb-6 border-b border-slate-800">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-semibold mb-2">
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Akilan's Big Data Pipeline
+          </div>
+          <h2 class="text-2xl font-bold font-display text-white">Distributed PySpark Big Data & ML Pipeline Architecture</h2>
+          <p class="text-slate-400 text-xs mt-1">
+            Data Engineering, Aggregation, Feature Normalization, Elbow Search & Distributed K-Means Clustering
+          </p>
+        </div>
+
+        <!-- PIPELINE FLOW DIAGRAM -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 relative">
+            <div class="text-xs font-mono text-cyan-400 font-bold">STAGE 1</div>
+            <h4 class="font-bold text-white text-sm">40.8M Raw Reviews</h4>
+            <p class="text-xs text-slate-400">
+              Ingested partitioned Steam review dataset via PySpark SQL with schema enforcement.
+            </p>
+            <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-slate-600 z-10">➔</div>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 relative">
+            <div class="text-xs font-mono text-cyan-400 font-bold">STAGE 2</div>
+            <h4 class="font-bold text-white text-sm">Spark Aggregations</h4>
+            <p class="text-xs text-slate-400">
+              Aggregated by <code class="text-slate-200">app_id</code>: calculated mean playtime, total reviews, positive percentage, joined with metadata.
+            </p>
+            <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-slate-600 z-10">➔</div>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 relative">
+            <div class="text-xs font-mono text-cyan-400 font-bold">STAGE 3</div>
+            <h4 class="font-bold text-white text-sm">Feature Engineering</h4>
+            <p class="text-xs text-slate-400">
+              Applied <code class="text-teal-300">log1p</code> to correct skewness, assembled feature vectors, scaled with <code class="text-teal-300">StandardScaler</code>.
+            </p>
+            <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-slate-600 z-10">➔</div>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="text-xs font-mono text-cyan-400 font-bold">STAGE 4</div>
+            <h4 class="font-bold text-white text-sm">K-Means & Evaluation</h4>
+            <p class="text-xs text-slate-400">
+              Grid-searched $K \in [2, 10]$ computing WSSSE cost and Silhouette score to lock in optimal $K=4$.
+            </p>
+          </div>
+        </div>
+
+        <!-- CODE SNIPPET PREVIEW -->
+        <div class="mt-8 pt-6 border-t border-slate-800">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="code" class="w-4 h-4 text-sky-400"></i> PySpark ML Transformation Code
+          </h3>
+          <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 font-mono text-xs overflow-x-auto custom-scrollbar"><code># Feature Skewness Correction & Vector Assembly
+df_transformed = df_clean.withColumn("log_price", F.log1p(F.col("price"))) \
+    .withColumn("log_popularity", F.log1p(F.col("popularity"))) \
+    .withColumn("log_playtime", F.log1p(F.col("playtime_hours")))
+
+assembler = VectorAssembler(
+    inputCols=["log_price", "rating_percent", "log_popularity", "log_playtime"],
+    outputCol="features_unscaled"
+)
+scaler = StandardScaler(inputCol="features_unscaled", outputCol="features", withMean=True, withStd=True)
+
+# Train K-Means with K=4
+kmeans = KMeans(featuresCol="features", predictionCol="cluster_id", k=4, seed=42)
+pipeline = Pipeline(stages=[assembler, scaler, kmeans])
+model = pipeline.fit(df_transformed)</code></pre>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#0e141b] border-t border-slate-800/80 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="gamepad" class="w-4 h-4 text-teal-400"></i>
+        <span>Steam Video Games Big Data Clustering • Academic Project</span>
+      </div>
+      <p>Built with PySpark MLlib, Chart.js, Plotly & Tailwind CSS</p>
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/therealakilan220/Video-Games-Analysis" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
+        <span>•</span>
+        <a href="https://therealakilan220.github.io/Video-Games-Analysis/" target="_blank" class="text-sky-400 hover:text-sky-300 transition">Online Dashboard</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LOAD DATA & DASHBOARD SCRIPT -->
+  <script src="data.js"></script>
+  <script>
+    // --- GLOBAL STATE ---
+    let gamesData = window.DATA ? window.DATA.games : [];
+    let statsData = window.DATA ? window.DATA.statistics : [];
+    let elbowData = window.DATA ? window.DATA.elbow : [];
+    let clusterMeta = window.DATA ? window.DATA.cluster_meta : {};
+
+    let currentTab = 'overview';
+    let currentClusterFilter = 'all';
+    let currentSortColumn = 'popularity';
+    let currentSortAsc = false;
+    let currentPage = 1;
+    const pageSize = 20;
+
+    let chartElbow = null;
+    let chartPie = null;
+    let chartFeatureBars = null;
+    let chart2DScatter = null;
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderClusterCards();
+      renderElbowSilhouetteChart();
+      renderClusterPieChart();
+      updateFeatureChart();
+      render2DScatter();
+      render3DScatter();
+      applyFilters();
+      runPrediction();
+    });
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+      currentTab = tabId;
+      ['overview', 'space2d3d', 'catalog', 'simulator', 'insights', 'pipeline'].forEach(id => {
+        const viewEl = document.getElementById('view-' + id);
+        const tabEl = document.getElementById('tab-' + id);
+        if (id === tabId) {
+          viewEl.classList.remove('hidden');
+          tabEl.classList.add('active');
+          tabEl.classList.remove('text-slate-400');
+        } else {
+          viewEl.classList.add('hidden');
+          tabEl.classList.remove('active');
+          tabEl.classList.add('text-slate-400');
+        }
+      });
+      lucide.createIcons();
+
+      // Trigger resize for charts
+      if (tabId === 'space2d3d') {
+        setTimeout(() => {
+          Plotly.Plots.resize('plotly-3d-scatter');
+          if (chart2DScatter) chart2DScatter.resize();
+        }, 100);
+      }
+    }
+
+    // --- RENDER CLUSTER CARDS ---
+    function renderClusterCards() {
+      const container = document.getElementById('cluster-cards-container');
+      container.innerHTML = '';
+
+      statsData.forEach(stat => {
+        const meta = clusterMeta[stat.cluster_id] || {};
+        const card = document.createElement('div');
+        card.className = `glass-card rounded-2xl p-5 border cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl ${meta.badge || ''}`;
+        card.onclick = () => {
+          switchTab('catalog');
+          setClusterFilter(stat.cluster_id.toString());
+        };
+
+        const pct = ((stat.count / 318) * 100).toFixed(1);
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Cluster ${stat.cluster_id}</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-800/80">${stat.count} games (${pct}%)</span>
+          </div>
+          <h3 class="font-bold text-white text-base mb-2">${meta.name}</h3>
+          <p class="text-xs text-slate-300 line-clamp-2 mb-3">${meta.description}</p>
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-slate-800/60 text-slate-300">
+            <div><span class="text-slate-400">Avg Price:</span> <strong class="text-white">$${stat.avg_price.toFixed(2)}</strong></div>
+            <div><span class="text-slate-400">Rating:</span> <strong class="text-white">${stat.avg_rating_percent.toFixed(1)}%</strong></div>
+            <div><span class="text-slate-400">Avg Playtime:</span> <strong class="text-white">${stat.avg_playtime_hours.toFixed(0)}h</strong></div>
+            <div><span class="text-slate-400">Avg Reviews:</span> <strong class="text-white">${stat.avg_popularity_reviews.toLocaleString()}</strong></div>
+          </div>
+          <div class="mt-3 pt-2 text-[11px] text-slate-400">
+            <span class="text-slate-500">Examples:</span> <span class="text-slate-200">${meta.representative.slice(0, 2).join(', ')}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- RENDER ELBOW & SILHOUETTE DUAL-AXIS CHART ---
+    function renderElbowSilhouetteChart() {
+      const ctx = document.getElementById('chart-elbow-silhouette').getContext('2d');
+      const labels = elbowData.map(d => `K=${d.K}`);
+      const wssseCosts = elbowData.map(d => d.WSSSE_Cost);
+      const silhouettes = elbowData.map(d => d.Silhouette_Score);
+
+      chartElbow = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'WSSSE Cost (Elbow Curve)',
+              data: wssseCosts,
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.1)',
+              yAxisID: 'yCost',
+              tension: 0.3,
+              pointBackgroundColor: labels.map((_, i) => i === 2 ? '#f59e0b' : '#38bdf8'),
+              pointRadius: labels.map((_, i) => i === 2 ? 8 : 4),
+            },
+            {
+              label: 'Silhouette Score',
+              data: silhouettes,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              yAxisID: 'ySilhouette',
+              tension: 0.3,
+              pointBackgroundColor: labels.map((_, i) => i === 2 ? '#f59e0b' : '#10b981'),
+              pointRadius: labels.map((_, i) => i === 2 ? 8 : 4),
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } } },
+            tooltip: {
+              callbacks: {
+                afterTitle: (items) => items[0].dataIndex === 2 ? '★ OPTIMAL K=4 LOCKED IN' : ''
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+            yCost: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'WSSSE Cost', color: '#38bdf8' },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8' }
+            },
+            ySilhouette: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'Silhouette Score', color: '#10b981' },
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#94a3b8' }
+            }
+          }
+        }
+      });
+    }
+
+    // --- RENDER CLUSTER BREAKDOWN PIE CHART ---
+    function renderClusterPieChart() {
+      const ctx = document.getElementById('chart-cluster-pie').getContext('2d');
+      const labels = statsData.map(s => `Cluster ${s.cluster_id}: ${clusterMeta[s.cluster_id].short_name}`);
+      const counts = statsData.map(s => s.count);
+      const colors = statsData.map(s => clusterMeta[s.cluster_id].color);
+
+      chartPie = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: '#171a21',
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { size: 10 }, boxWidth: 12 } }
+          },
+          cutout: '62%'
+        }
+      });
+    }
+
+    // --- RENDER FEATURE BARS ---
+    function updateFeatureChart() {
+      const metric = document.getElementById('metric-select').value;
+      const ctx = document.getElementById('chart-feature-bars').getContext('2d');
+      
+      const labels = statsData.map(s => `Cluster ${s.cluster_id}: ${clusterMeta[s.cluster_id].short_name}`);
+      const values = statsData.map(s => s[metric]);
+      const colors = statsData.map(s => clusterMeta[s.cluster_id].color);
+
+      let metricName = "Value";
+      if (metric === 'avg_rating_percent') metricName = "Rating (%)";
+      if (metric === 'avg_playtime_hours') metricName = "Playtime (Hours)";
+      if (metric === 'avg_price') metricName = "Price ($)";
+      if (metric === 'avg_popularity_reviews') metricName = "Popularity (# Reviews)";
+
+      if (chartFeatureBars) chartFeatureBars.destroy();
+
+      chartFeatureBars = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: metricName,
+            data: values,
+            backgroundColor: colors,
+            borderRadius: 8,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    // --- RENDER 3D SCATTER PLOT (PLOTLY) ---
+    function render3DScatter() {
+      const traces = [];
+      const clusterIds = [0, 1, 2, 3];
+
+      clusterIds.forEach(cid => {
+        const clusterGames = gamesData.filter(g => g.cluster_id === cid);
+        const meta = clusterMeta[cid];
+
+        traces.push({
+          x: clusterGames.map(g => Math.log10(g.playtime_hours + 1)),
+          y: clusterGames.map(g => g.rating_percent),
+          z: clusterGames.map(g => Math.log10(g.price + 1)),
+          text: clusterGames.map(g => `<b>${g.game_name}</b><br>Playtime: ${g.playtime_hours.toFixed(1)} hrs<br>Rating: ${g.rating_percent.toFixed(1)}%<br>Price: $${g.price.toFixed(2)}<br>Reviews: ${g.popularity.toLocaleString()}`),
+          mode: 'markers',
+          name: `C${cid}: ${meta.short_name}`,
+          marker: {
+            size: 5,
+            color: meta.color,
+            opacity: 0.85
+          },
+          type: 'scatter3d'
+        });
+      });
+
+      const layout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+        showlegend: true,
+        legend: {
+          x: 0, y: 1,
+          font: { color: '#cbd5e1', size: 10 },
+          bgcolor: 'rgba(15, 23, 42, 0.7)'
+        },
+        scene: {
+          xaxis: { title: 'Log10(Playtime + 1)', color: '#94a3b8', gridcolor: '#1e293b', backgroundcolor: '#090d16' },
+          yaxis: { title: 'Rating (%)', color: '#94a3b8', gridcolor: '#1e293b', backgroundcolor: '#090d16' },
+          zaxis: { title: 'Log10(Price + 1)', color: '#94a3b8', gridcolor: '#1e293b', backgroundcolor: '#090d16' },
+          camera: {
+            eye: { x: 1.6, y: 1.6, z: 1.2 }
+          }
+        }
+      };
+
+      Plotly.newPlot('plotly-3d-scatter', traces, layout, { responsive: true, displayModeBar: false });
+    }
+
+    function reset3DPlot() {
+      Plotly.relayout('plotly-3d-scatter', {
+        'scene.camera': { eye: { x: 1.6, y: 1.6, z: 1.2 } }
+      });
+    }
+
+    // --- RENDER 2D SCATTER PLOT ---
+    function render2DScatter() {
+      const xKey = document.getElementById('scatter-x-axis').value;
+      const yKey = document.getElementById('scatter-y-axis').value;
+      const ctx = document.getElementById('chart-2d-scatter').getContext('2d');
+
+      const datasets = [0, 1, 2, 3].map(cid => {
+        const cGames = gamesData.filter(g => g.cluster_id === cid);
+        const meta = clusterMeta[cid];
+        return {
+          label: `Cluster ${cid}: ${meta.short_name}`,
+          data: cGames.map(g => ({ x: g[xKey], y: g[yKey], raw: g })),
+          backgroundColor: meta.color,
+          borderColor: 'transparent',
+          pointRadius: 5,
+          pointHoverRadius: 8
+        };
+      });
+
+      if (chart2DScatter) chart2DScatter.destroy();
+
+      chart2DScatter = new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#cbd5e1', font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: (item) => {
+                  const g = item.raw.raw;
+                  return [
+                    `🎮 ${g.game_name}`,
+                    `Cluster: ${clusterMeta[g.cluster_id].short_name}`,
+                    `Rating: ${g.rating_percent.toFixed(1)}% | Price: $${g.price.toFixed(2)}`,
+                    `Playtime: ${g.playtime_hours.toFixed(1)} hrs | Reviews: ${g.popularity.toLocaleString()}`
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: getFieldLabel(xKey), color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8' }
+            },
+            y: {
+              title: { display: true, text: getFieldLabel(yKey), color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#94a3b8' }
+            }
+          }
+        }
+      });
+    }
+
+    function getFieldLabel(key) {
+      if (key === 'playtime_hours') return 'Average Playtime (Hours)';
+      if (key === 'rating_percent') return 'Positive Rating (%)';
+      if (key === 'price') return 'Price ($ USD)';
+      if (key === 'popularity') return 'Popularity (Review Count)';
+      return key;
+    }
+
+    // --- GAME CATALOG & FILTERING ---
+    let filteredGames = [...gamesData];
+
+    function setClusterFilter(filterVal) {
+      currentClusterFilter = filterVal;
+      ['all', '0', '1', '2', '3'].forEach(f => {
+        const btn = document.getElementById('filter-pill-' + f);
+        if (f === filterVal) {
+          btn.className = 'px-3 py-1 text-xs rounded-full font-medium transition bg-sky-500 text-white shadow-sm shadow-sky-500/30';
+        } else {
+          btn.className = 'px-3 py-1 text-xs rounded-full font-medium transition bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700';
+        }
+      });
+      currentPage = 1;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('game-search-input').value.toLowerCase().trim();
+
+      filteredGames = gamesData.filter(g => {
+        const matchCluster = currentClusterFilter === 'all' || g.cluster_id.toString() === currentClusterFilter;
+        const matchSearch = !search || g.game_name.toLowerCase().includes(search);
+        return matchCluster && matchSearch;
+      });
+
+      // Sort
+      filteredGames.sort((a, b) => {
+        let valA = a[currentSortColumn];
+        let valB = b[currentSortColumn];
+        if (typeof valA === 'string') {
+          return currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return currentSortAsc ? valA - valB : valB - valA;
+      });
+
+      renderTable();
+    }
+
+    function sortTable(column) {
+      if (currentSortColumn === column) {
+        currentSortAsc = !currentSortAsc;
+      } else {
+        currentSortColumn = column;
+        currentSortAsc = false;
+      }
+      applyFilters();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('games-table-body');
+      tbody.innerHTML = '';
+
+      const total = filteredGames.length;
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+      const pageGames = filteredGames.slice(startIdx, endIdx);
+
+      if (pageGames.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-500 text-sm">No video games match your filter criteria.</td></tr>`;
+      } else {
+        pageGames.forEach(g => {
+          const meta = clusterMeta[g.cluster_id] || {};
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-800/40 transition';
+          tr.innerHTML = `
+            <td class="px-6 py-3.5 font-semibold text-white">${g.game_name}</td>
+            <td class="px-6 py-3.5">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${meta.badge || ''}">
+                C${g.cluster_id}: ${meta.short_name}
+              </span>
+            </td>
+            <td class="px-6 py-3.5 text-right font-mono text-slate-200">${g.price === 0 ? '<span class="text-emerald-400 font-semibold">Free</span>' : '$' + g.price.toFixed(2)}</td>
+            <td class="px-6 py-3.5 text-right font-mono text-teal-300">${g.rating_percent.toFixed(1)}%</td>
+            <td class="px-6 py-3.5 text-right font-mono text-slate-200">${g.popularity.toLocaleString()}</td>
+            <td class="px-6 py-3.5 text-right font-mono text-amber-300">${g.playtime_hours.toFixed(1)} h</td>
+            <td class="px-6 py-3.5 text-center">
+              <a href="https://store.steampowered.com/app/${g.app_id}" target="_blank" class="text-slate-500 hover:text-sky-400 transition" title="Open on Steam Store">
+                <i data-lucide="external-link" class="w-4 h-4 inline"></i>
+              </a>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('table-results-count').textContent = total > 0 ? `Showing ${startIdx + 1} to ${endIdx} of ${total} games` : '0 games found';
+      renderPagination(total);
+      lucide.createIcons();
+    }
+
+    function renderPagination(total) {
+      const controls = document.getElementById('table-pagination-controls');
+      controls.innerHTML = '';
+      const totalPages = Math.ceil(total / pageSize) || 1;
+
+      const prevBtn = document.createElement('button');
+      prevBtn.className = `px-3 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 text-xs ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-700'}`;
+      prevBtn.innerHTML = '← Prev';
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
+      controls.appendChild(prevBtn);
+
+      const pageInfo = document.createElement('span');
+      pageInfo.className = 'px-2 text-xs text-slate-400';
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+      controls.appendChild(pageInfo);
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = `px-3 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 text-xs ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-700'}`;
+      nextBtn.innerHTML = 'Next →';
+      nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
+      controls.appendChild(nextBtn);
+    }
+
+    function exportTableCSV() {
+      let csv = 'app_id,game_name,cluster_id,price,rating_percent,popularity,playtime_hours\n';
+      filteredGames.forEach(g => {
+        csv += `${g.app_id},"${g.game_name.replace(/"/g, '""')}",${g.cluster_id},${g.price},${g.rating_percent},${g.popularity},${g.playtime_hours}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `steam_clustered_games_${currentClusterFilter}.csv`;
+      link.click();
+    }
+
+    // --- LIVE CLUSTER PREDICTOR ENGINE ---
+    // Scaled Centroids computed from the PySpark ML dataset:
+    const SCALED_CENTROIDS = {
+      0: { log_price: -1.350715, rating: 0.590916, log_pop: 0.299918, log_playtime: -0.726245 },
+      1: { log_price: 0.419183, rating: 0.098128, log_pop: -0.705818, log_playtime: -0.334773 },
+      2: { log_price: -1.093513, rating: -2.534008, log_pop: -1.128798, log_playtime: -0.543388 },
+      3: { log_price: 0.516530, rating: 0.273459, log_pop: 0.866515, log_playtime: 0.835998 }
+    };
+    const MEANS = { log_price: 2.510797, rating: 84.571289, log_pop: 9.570437, log_playtime: 4.063411 };
+    const STDS  = { log_price: 1.185178, rating: 18.714204, log_pop: 1.726916, log_playtime: 1.165601 };
+
+    function runPrediction() {
+      const price = parseFloat(document.getElementById('input-price').value);
+      const rating = parseFloat(document.getElementById('input-rating').value);
+      const pop = parseFloat(document.getElementById('input-popularity').value);
+      const playtime = parseFloat(document.getElementById('input-playtime').value);
+
+      document.getElementById('val-price').textContent = price === 0 ? 'FREE ($0.00)' : `$${price.toFixed(2)}`;
+      document.getElementById('val-rating').textContent = `${rating.toFixed(1)}%`;
+      document.getElementById('val-popularity').textContent = pop.toLocaleString();
+      document.getElementById('val-playtime').textContent = `${playtime.toFixed(0)} hrs`;
+
+      // Transform features
+      const z_price = (Math.log(price + 1) - MEANS.log_price) / STDS.log_price;
+      const z_rating = (rating - MEANS.rating) / STDS.rating;
+      const z_pop = (Math.log(pop + 1) - MEANS.log_pop) / STDS.log_pop;
+      const z_playtime = (Math.log(playtime + 1) - MEANS.log_playtime) / STDS.log_playtime;
+
+      // Compute Euclidean Distance to each centroid
+      let minDist = Infinity;
+      let predictedCluster = 0;
+      const distances = {};
+
+      [0, 1, 2, 3].forEach(cid => {
+        const c = SCALED_CENTROIDS[cid];
+        const dist = Math.sqrt(
+          Math.pow(z_price - c.log_price, 2) +
+          Math.pow(z_rating - c.rating, 2) +
+          Math.pow(z_pop - c.log_pop, 2) +
+          Math.pow(z_playtime - c.log_playtime, 2)
+        );
+        distances[cid] = dist;
+        if (dist < minDist) {
+          minDist = dist;
+          predictedCluster = cid;
+        }
+      });
+
+      // Render Prediction Results
+      const meta = clusterMeta[predictedCluster];
+      const card = document.getElementById('prediction-card');
+      card.className = `p-6 rounded-2xl border transition-all duration-300 shadow-xl ${meta.badge}`;
+
+      document.getElementById('pred-badge').textContent = `Cluster ${predictedCluster}`;
+      document.getElementById('pred-title').textContent = meta.name;
+      document.getElementById('pred-desc').textContent = meta.description;
+
+      // Render distances bar breakdown
+      const breakdownEl = document.getElementById('distance-breakdown');
+      breakdownEl.innerHTML = '';
+
+      // Softmax inverse distance to represent confidence probabilities
+      const invDists = [0, 1, 2, 3].map(cid => 1 / (distances[cid] + 0.001));
+      const sumInv = invDists.reduce((a, b) => a + b, 0);
+
+      [0, 1, 2, 3].forEach(cid => {
+        const prob = ((invDists[cid] / sumInv) * 100).toFixed(1);
+        const isWinner = cid === predictedCluster;
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between text-xs">
+            <span class="${isWinner ? 'font-bold text-white' : 'text-slate-400'}">Cluster ${cid}: ${clusterMeta[cid].short_name}</span>
+            <span class="font-mono ${isWinner ? 'font-bold text-white' : 'text-slate-400'}">${prob}% (dist: ${distances[cid].toFixed(2)})</span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-300" style="width: ${prob}%; background-color: ${clusterMeta[cid].color}"></div>
+          </div>
+        `;
+        breakdownEl.appendChild(row);
+      });
+    }
+
+    function loadPreset(type) {
+      if (type === 'f2p') {
+        document.getElementById('input-price').value = 0.0;
+        document.getElementById('input-rating').value = 96.0;
+        document.getElementById('input-popularity').value = 180000;
+        document.getElementById('input-playtime').value = 25;
+      } else if (type === 'indie') {
+        document.getElementById('input-price').value = 19.99;
+        document.getElementById('input-rating').value = 94.0;
+        document.getElementById('input-popularity').value = 8500;
+        document.getElementById('input-playtime').value = 35;
+      } else if (type === 'aaa') {
+        document.getElementById('input-price').value = 49.99;
+        document.getElementById('input-rating').value = 91.0;
+        document.getElementById('input-popularity').value = 150000;
+        document.getElementById('input-playtime').value = 240;
+      } else if (type === 'flop') {
+        document.getElementById('input-price').value = 14.99;
+        document.getElementById('input-rating').value = 32.0;
+        document.getElementById('input-popularity').value = 4000;
+        document.getElementById('input-playtime').value = 12;
+      }
+      runPrediction();
+    }
+  </script>
+</body>
+</html>

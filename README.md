@@ -1,10 +1,26 @@
 # Video Game Clustering Analysis using PySpark (K-Means)
 
-**Big Data Engineering Project**  
+[![Live Dashboard](https://img.shields.io/badge/🌐_Live_Frontend_Dashboard-Open_Online_App-1999e3?style=for-the-badge&logo=google-chrome&logoColor=white)](https://therealakilan220.github.io/Video-Games-Analysis/)
+[![PySpark](https://img.shields.io/badge/PySpark-4.2.0-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://spark.apache.org/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Active-success?style=for-the-badge&logo=github)](https://therealakilan220.github.io/Video-Games-Analysis/)
+
+**Big Data Engineering & Machine Learning Project**  
 - **Akilan**: Data Engineering + Feature Engineering + Model Training & Evaluation (Heavy Compute Lead)  
 - **Arvind**: Visualization + Cluster Interpretation + Inference + Limitations (Light Compute Lead)
 
 ---
+
+## 🌐 Live Interactive Frontend Dashboard
+**Direct URL:** 👉 **[https://therealakilan220.github.io/Video-Games-Analysis/](https://therealakilan220.github.io/Video-Games-Analysis/)**
+
+The repository features an online frontend dashboard featuring:
+- 📊 **Executive Overview & KPI Cards:** Real-time metrics across 40.8M reviews and 318 games.
+- 🌌 **2D & 3D Interactive Feature Space:** WebGL 3D scatter plot (Plotly) + customizable 2D bi-variable scatter explorer.
+- 🎮 **Searchable Game Catalog:** Filter, search, and sort 318 games by price, rating %, popularity, and playtime with instant CSV export.
+- 🧪 **Live Cluster Predictor (Simulator):** Test custom game parameters with dynamic `StandardScaler` centroid distance calculations.
+- 📑 **Arvind's Inference & Presentation Script:** Key insights, limitations, and full slide script.
+- ⚙️ **PySpark Pipeline Architecture:** End-to-end distributed data engineering diagrams.
+
 
 ## 1. Problem Statement
 Group video games into meaningful clusters based on **Price**, **Rating Reception**, **Popularity**, and **Playtime** using unsupervised learning (**K-Means Clustering** via Spark MLlib).

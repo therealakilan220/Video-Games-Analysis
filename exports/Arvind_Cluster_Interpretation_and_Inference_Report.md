@@ -3,6 +3,7 @@
 **Project Title:** Video Games Clustering Based on Price, Rating, Popularity, and Playtime Using K-Means  
 **Team Member:** Arvind (Visualization, Cluster Interpretation, Inference & Limitations Lead)  
 **Collaborator:** Akilan (Data Engineering, Spark Pipeline, Scaling, Model Training & Evaluation Lead)  
+**Live Interactive Dashboard:** 👉 [https://therealakilan220.github.io/Video-Games-Analysis/](https://therealakilan220.github.io/Video-Games-Analysis/)  
 
 ---
 
