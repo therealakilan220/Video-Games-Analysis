@@ -1,6 +1,6 @@
 """
 Configuration and Spark Session Setup for Video Game Clustering Pipeline
-Author: Akilan (Data Engineering & ML Lead)
+Big Data Engineering & PySpark ML Module
 """
 
 import os

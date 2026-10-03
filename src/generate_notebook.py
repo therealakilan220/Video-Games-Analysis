@@ -8,8 +8,7 @@ notebook = {
             "metadata": {},
             "source": [
                 "# BDE Video Game Clustering - Big Data PySpark Pipeline\n",
-                "### **Author:** Akilan (Data Engineering, Feature Engineering & ML Model Training Lead)\n",
-                "### **Partner:** Arvind (Visualization, Interpretation, Inference & Limitations Lead)\n",
+                "### **Domain:** Big Data Machine Learning & Game Commercial Analytics\n",
                 "---\n",
                 "## 1. Problem Statement & Big Data Stage Justification\n",
                 "- **Goal:** Group video games into meaningful clusters based on **Price**, **Rating Reception**, **Popularity**, and **Playtime** using unsupervised learning (**K-Means Clustering**).\n",
@@ -49,7 +48,7 @@ notebook = {
                 "os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable\n",
                 "\n",
                 "spark = SparkSession.builder \\\n",
-                "    .appName('SteamVideoGameClustering_Akilan') \\\n",
+                "    .appName('SteamVideoGameClustering') \\\n",
                 "    .master('local[*]') \\\n",
                 "    .config('spark.driver.memory', '8g') \\\n",
                 "    .config('spark.executor.memory', '8g') \\\n",
@@ -315,8 +314,8 @@ notebook = {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 10. Deliverables Export for Arvind (Visualization Lead)\n",
-                "Export clean, lightweight CSV tables to `exports/` so Arvind can perform 2D scatter plots, cluster profiling, and written inferences without touching the raw Big Data files."
+                "## 10. Deliverables & Lightweight Summary Exports\n",
+                "Export clean, lightweight CSV tables to `exports/` for visualization, cluster profiling, and dashboard rendering."
             ]
         },
         {
@@ -359,7 +358,7 @@ notebook = {
     "nbformat_minor": 4
 }
 
-out_path = Path(r"c:\Users\akila_b25bm7e\Documents\VideoGame Analysis\notebooks\VideoGame_Clustering_Akilan_Pipeline.ipynb")
+out_path = Path(r"c:\Users\akila_b25bm7e\Documents\VideoGame Analysis\notebooks\VideoGame_Clustering_PySpark_Pipeline.ipynb")
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(notebook, f, indent=2)
 print(f"Created notebook at: {out_path}")

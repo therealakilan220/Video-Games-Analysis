@@ -103,24 +103,18 @@
           </div>
         </div>
 
-        <!-- Team & GitHub Links -->
-        <div class="flex items-center gap-4">
-          <div class="hidden md:flex items-center gap-2 text-xs">
+        <!-- Badges & Links -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2 text-xs">
             <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-              <strong>Akilan:</strong> Data Eng & PySpark ML
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Distributed Spark MLlib
             </span>
             <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-              <strong>Arvind:</strong> Viz & Inference Lead
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Silhouette: 0.4663
             </span>
           </div>
-
-          <a href="https://github.com/therealakilan220/Video-Games-Analysis" target="_blank" rel="noopener noreferrer"
-             class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition border border-slate-700 shadow-sm">
-            <i data-lucide="github" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">GitHub Repository</span>
-          </a>
         </div>
       </div>
     </div>
@@ -143,10 +137,10 @@
           <i data-lucide="flask-conical" class="w-4 h-4"></i> Live Cluster Predictor
         </button>
         <button onclick="switchTab('insights')" id="tab-insights" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
-          <i data-lucide="file-text" class="w-4 h-4"></i> Arvind's Inference Report
+          <i data-lucide="file-text" class="w-4 h-4"></i> Inference Report
         </button>
         <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2 transition whitespace-nowrap">
-          <i data-lucide="cpu" class="w-4 h-4"></i> PySpark Architecture
+          <i data-lucide="cpu" class="w-4 h-4"></i> Pipeline Architecture
         </button>
       </div>
     </div>
@@ -545,7 +539,7 @@
 
     </div>
 
-    <!-- ==================== TAB 5: ARVIND'S INFERENCE REPORT & SCRIPT ==================== -->
+    <!-- ==================== TAB 5: INFERENCE REPORT ==================== -->
     <div id="view-insights" class="hidden space-y-8">
       
       <!-- REPORT HEADER -->
@@ -553,16 +547,10 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
           <div>
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold mb-2">
-              <i data-lucide="award" class="w-3.5 h-3.5"></i> Arvind's Research Deliverable
+              <i data-lucide="award" class="w-3.5 h-3.5"></i> Research Deliverable
             </div>
             <h2 class="text-2xl font-bold font-display text-white">Cluster Interpretation, Visualizations & Strategic Inferences</h2>
-            <p class="text-slate-400 text-xs mt-1">Lead: <strong>Arvind</strong> • Verified from Akilan's Big Data PySpark Outputs</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <a href="https://github.com/therealakilan220/Video-Games-Analysis/blob/main/exports/Arvind_Cluster_Interpretation_and_Inference_Report.md" target="_blank"
-               class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-2">
-              <i data-lucide="file-code" class="w-4 h-4 text-amber-400"></i> View Raw Markdown
-            </a>
+            <p class="text-slate-400 text-xs mt-1">Validated & Formatted from Distributed Big Data PySpark Outputs</p>
           </div>
         </div>
 
@@ -590,19 +578,6 @@
             <p class="text-xs text-slate-400 leading-relaxed">
               Cluster 2 isolates titles suffering from aggressive monetization or botched technical ports (e.g. <em>NBA 2K21</em>, <em>Deus Ex: The Fall</em>), resulting in sub-38% user sentiment regardless of franchise pedigree.
             </p>
-          </div>
-        </div>
-
-        <!-- PRESENTATION SPEAKING SCRIPT -->
-        <div class="mt-8 pt-6 border-t border-slate-800">
-          <h3 class="text-lg font-bold font-display text-white flex items-center gap-2 mb-4">
-            <i data-lucide="mic" class="w-5 h-5 text-sky-400"></i> Arvind's Presentation Speaking Script
-          </h3>
-          <div class="space-y-3 font-mono text-xs text-slate-300 bg-slate-950 p-5 rounded-xl border border-slate-800 leading-relaxed">
-            <p><span class="text-teal-400 font-bold">[Slide 1: Overview & Distribution]</span> "Hello everyone. Building on Akilan's PySpark data processing and K-Means modeling, our unsupervised clustering on 40.8 million Steam reviews grouped games into 4 distinct commercial archetypes..."</p>
-            <p><span class="text-sky-400 font-bold">[Slide 2: Cluster Profiles & Key Metrics]</span> "Cluster 0 represents 'Budget & Free-to-Play Hits' with near-perfect 95.6% ratings and low prices. Cluster 1 captures 'Mid-Tier Indie Favorites' with dedicated followings. Cluster 2 isolates 'Underperforming Titles' below 38%. Cluster 3 represents 'AAA Blockbusters and Endless Time-Sinks' averaging over 224 hours."</p>
-            <p><span class="text-amber-400 font-bold">[Slide 3: Visualizations & Case Studies]</span> "Looking at our 2D/3D feature space, we clearly observe how playtime and rating separate viral hits like Among Us from massive time-sinks like Skyrim and Factorio..."</p>
-            <p><span class="text-purple-400 font-bold">[Slide 4: Key Inferences & Nuances]</span> "Our primary takeaway is that player satisfaction is highest in low-barrier, highly polished games. However, we must account for limitations such as review sentiment bias and game age accumulation."</p>
           </div>
         </div>
 
@@ -635,13 +610,13 @@
 
     </div>
 
-    <!-- ==================== TAB 6: PYSPARK ARCHITECTURE ==================== -->
+    <!-- ==================== TAB 6: PIPELINE ARCHITECTURE ==================== -->
     <div id="view-pipeline" class="hidden space-y-8">
       
       <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800">
         <div class="pb-6 border-b border-slate-800">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-semibold mb-2">
-            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Akilan's Big Data Pipeline
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Big Data Pipeline
           </div>
           <h2 class="text-2xl font-bold font-display text-white">Distributed PySpark Big Data & ML Pipeline Architecture</h2>
           <p class="text-slate-400 text-xs mt-1">
@@ -720,14 +695,9 @@ model = pipeline.fit(df_transformed)</code></pre>
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2">
         <i data-lucide="gamepad" class="w-4 h-4 text-teal-400"></i>
-        <span>Steam Video Games Big Data Clustering • Academic Project</span>
+        <span>Steam Video Games Big Data Clustering Analysis</span>
       </div>
       <p>Built with PySpark MLlib, Chart.js, Plotly & Tailwind CSS</p>
-      <div class="flex items-center gap-3">
-        <a href="https://github.com/therealakilan220/Video-Games-Analysis" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
-        <span>•</span>
-        <a href="https://therealakilan220.github.io/Video-Games-Analysis/" target="_blank" class="text-sky-400 hover:text-sky-300 transition">Online Dashboard</a>
-      </div>
     </div>
   </footer>
 
@@ -1216,7 +1186,6 @@ model = pipeline.fit(df_transformed)</code></pre>
     }
 
     // --- LIVE CLUSTER PREDICTOR ENGINE ---
-    // Scaled Centroids computed from the PySpark ML dataset:
     const SCALED_CENTROIDS = {
       0: { log_price: -1.350715, rating: 0.590916, log_pop: 0.299918, log_playtime: -0.726245 },
       1: { log_price: 0.419183, rating: 0.098128, log_pop: -0.705818, log_playtime: -0.334773 },
@@ -1276,7 +1245,6 @@ model = pipeline.fit(df_transformed)</code></pre>
       const breakdownEl = document.getElementById('distance-breakdown');
       breakdownEl.innerHTML = '';
 
-      // Softmax inverse distance to represent confidence probabilities
       const invDists = [0, 1, 2, 3].map(cid => 1 / (distances[cid] + 0.001));
       const sumInv = invDists.reduce((a, b) => a + b, 0);
 

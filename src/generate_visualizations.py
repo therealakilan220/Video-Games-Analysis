@@ -1,6 +1,6 @@
 """
 Generate Visualizations for Video Game Clustering Project
-Author: Akilan & Arvind Team Deliverable
+Big Data Machine Learning Deliverable
 """
 
 from pathlib import Path

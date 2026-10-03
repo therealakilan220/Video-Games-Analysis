@@ -1,4 +1,4 @@
-BDE CLUSTERING PROJECT - AKILAN METRICS & MODEL HANDOFF SUMMARY
+BDE CLUSTERING PROJECT - PYSPARK METRICS & MODEL SUMMARY
 ======================================================================
 Raw Dataset: Steam Reviews Dataset 2021 (najzeko) + Steam Store Games (nikdavis)
 Documented Raw Size: ~5.32 GB compressed / 8.17 GB uncompressed

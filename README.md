@@ -1,26 +1,33 @@
 # Video Game Clustering Analysis using PySpark (K-Means)
 
-[![Live Dashboard](https://img.shields.io/badge/🌐_Live_Frontend_Dashboard-Open_Online_App-1999e3?style=for-the-badge&logo=google-chrome&logoColor=white)](https://therealakilan220.github.io/Video-Games-Analysis/)
 [![PySpark](https://img.shields.io/badge/PySpark-4.2.0-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://spark.apache.org/)
-[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Active-success?style=for-the-badge&logo=github)](https://therealakilan220.github.io/Video-Games-Analysis/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)]()
 
 **Big Data Engineering & Machine Learning Project**  
-- **Akilan**: Data Engineering + Feature Engineering + Model Training & Evaluation (Heavy Compute Lead)  
-- **Arvind**: Visualization + Cluster Interpretation + Inference + Limitations (Light Compute Lead)
+Unsupervised clustering of video games across Price, Player Ratings, Popularity, and Playtime Engagement using Apache PySpark and distributed K-Means ML.
 
 ---
 
-## 🌐 Live Interactive Frontend Dashboard
-**Direct URL:** 👉 **[https://therealakilan220.github.io/Video-Games-Analysis/](https://therealakilan220.github.io/Video-Games-Analysis/)**
+## 🖥️ Interactive Web Dashboard & Frontend
 
-The repository features an online frontend dashboard featuring:
-- 📊 **Executive Overview & KPI Cards:** Real-time metrics across 40.8M reviews and 318 games.
-- 🌌 **2D & 3D Interactive Feature Space:** WebGL 3D scatter plot (Plotly) + customizable 2D bi-variable scatter explorer.
-- 🎮 **Searchable Game Catalog:** Filter, search, and sort 318 games by price, rating %, popularity, and playtime with instant CSV export.
-- 🧪 **Live Cluster Predictor (Simulator):** Test custom game parameters with dynamic `StandardScaler` centroid distance calculations.
-- 📑 **Arvind's Inference & Presentation Script:** Key insights, limitations, and full slide script.
-- ⚙️ **PySpark Pipeline Architecture:** End-to-end distributed data engineering diagrams.
+The repository includes a web frontend dashboard for interactive data exploration, 3D/2D feature spaces, and real-time cluster inference.
 
+### How to Access the Dashboard:
+
+#### 1. Quick Local Launch (1-Click)
+- **Windows:** Double-click `launch_dashboard.bat` or open `index.html` directly in your browser.
+- **Terminal (Cross-Platform):**
+  ```bash
+  python serve_dashboard.py
+  ```
+  This immediately launches the local server and opens `http://localhost:8000/index.html`.
+
+#### 2. Free Cloud Hosting (GitHub Pages / Vercel / Netlify)
+- **GitHub Pages:** Go to **Repo Settings** ➔ **Pages** ➔ Set Source to **GitHub Actions** (or Deploy from `main` branch `/docs` folder).
+- **Vercel / Netlify:** Import the repository &mdash; zero build configuration required (static web app).
+
+---
 
 ## 1. Problem Statement
 Group video games into meaningful clusters based on **Price**, **Rating Reception**, **Popularity**, and **Playtime** using unsupervised learning (**K-Means Clustering** via Spark MLlib).
@@ -84,23 +91,23 @@ Group video games into meaningful clusters based on **Price**, **Rating Receptio
 
 ## 6. Discovered Cluster Profiles ($K=4$)
 
-| Cluster ID | Game Count | Avg Price ($) | Median Price ($) | Avg Rating (%) | Median Rating (%) | Avg Reviews (Pop) | Median Reviews | Avg Playtime (h) | Median Playtime (h) |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **0** | 56 | $3.12 | $0.00 | 95.63% | 97.16% | 43,873 | 29,982 | 36.91 h | 21.63 h |
-| **1** | 117 | $22.10 | $18.99 | 86.41% | 89.76% | 6,639 | 4,570 | 53.95 h | 38.48 h |
-| **2** | 30 | $7.23 | $0.00 | 37.15% | 38.06% | 4,399 | 2,860 | 59.31 h | 21.60 h |
-| **3** | 115 | $24.96 | $22.99 | 89.69% | 91.82% | 116,564 | 53,546 | 224.23 h | 156.36 h |
+| Cluster ID | Semantic Archetype | Game Count | Avg Price ($) | Avg Rating (%) | Avg Reviews (Pop) | Avg Playtime (h) |
+|:---:|:---|:---:|:---:|:---:|:---:|:---:|
+| **0** | **Budget & Free-to-Play Mass Hits** | 56 (17.6%) | $3.12 | 95.63% | 43,873 | 36.91 h |
+| **1** | **Mid-Tier & Niche Indie Favorites** | 117 (36.8%) | $22.10 | 86.41% | 6,639 | 53.95 h |
+| **2** | **Underperforming / Poorly-Received Titles** | 30 (9.4%) | $7.23 | 37.15% | 4,399 | 59.31 h |
+| **3** | **AAA Blockbusters & High-Engagement Time-Sinks** | 115 (36.2%) | $24.96 | 89.69% | 116,564 | 224.23 h |
 
 ---
 
-## 7. Exported Handoff Deliverables for Arvind
+## 7. Analysis & Deliverables
 Located in [`exports/`](./exports/):
+- [`exports/Cluster_Interpretation_and_Inference_Report.md`](./exports/Cluster_Interpretation_and_Inference_Report.md): Full analysis report, cluster profiles, and strategic takeaways.
 - [`exports/elbow_cost.csv`](./exports/elbow_cost.csv): $K$ vs WSSSE cost and Silhouette score.
 - [`exports/cluster_sizes.csv`](./exports/cluster_sizes.csv): Game count per cluster.
 - [`exports/cluster_statistics.csv`](./exports/cluster_statistics.csv): Mean and median for all 4 features per cluster.
 - [`exports/clustered_games.csv`](./exports/clustered_games.csv): Full game table with features and assigned `cluster_id`.
-- [`exports/plot_sample.csv`](./exports/plot_sample.csv): Ready-to-plot sample for 2D scatter plots.
-- [`exports/metrics_summary.txt`](./exports/metrics_summary.txt): Full text summary for the presentation.
+- [`exports/figures/`](./exports/figures/): High-resolution visualization figures.
 
 ---
 
@@ -111,5 +118,5 @@ python src/pipeline.py
 ```
 Or open and execute the Jupyter Notebook:
 ```bash
-jupyter notebook notebooks/VideoGame_Clustering_Akilan_Pipeline.ipynb
+jupyter notebook notebooks/VideoGame_Clustering_PySpark_Pipeline.ipynb
 ```

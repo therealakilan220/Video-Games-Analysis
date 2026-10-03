@@ -1,6 +1,6 @@
 """
 End-to-End PySpark Video Game Clustering Pipeline
-Author: Akilan (Data Engineering & ML Lead)
+Big Data Machine Learning Pipeline
 
 Tasks covered:
 1. PySpark ingestion of the ~8.17 GB uncompressed (~5.32 GB raw) Steam Reviews dataset.
@@ -9,7 +9,7 @@ Tasks covered:
 4. Preprocessing, log-transformation, and StandardScaler feature scaling.
 5. K-Means clustering across K=2 to 10 (Elbow Method & Silhouette Scores).
 6. Final model fitting, cluster size calculations, and cluster-wise feature summaries.
-7. Lightweight exports generation for Arvind.
+7. Lightweight exports and dashboard dataset generation.
 """
 
 import time
@@ -37,7 +37,7 @@ from config import (
 def run_pipeline():
     start_time = time.time()
     print("=" * 70)
-    print("STARTING BIG DATA VIDEO GAME CLUSTERING PIPELINE (AKILAN)")
+    print("STARTING BIG DATA VIDEO GAME CLUSTERING PIPELINE")
     print("=" * 70)
 
     # 1. Initialize PySpark
@@ -252,7 +252,7 @@ def run_pipeline():
     print(f"Saved Cluster Statistics to: {CLUSTER_STATISTICS_CSV}")
     print(cluster_stats_pd.to_string(index=False))
 
-    # Export Full Clustered Table and Sample for Arvind
+    # Export Full Clustered Table and Sample
     full_output_pd = final_clustered_spark.select(
         "app_id",
         "game_name",
@@ -273,7 +273,7 @@ def run_pipeline():
     print(f"Saved 2D Plot Sample ({sample_size} games) to: {PLOT_SAMPLE_CSV}")
 
     # Export Metrics Summary Text
-    summary_text = f"""BDE CLUSTERING PROJECT - AKILAN METRICS & MODEL HANDOFF SUMMARY
+    summary_text = f"""BDE CLUSTERING PROJECT - PYSPARK METRICS & MODEL SUMMARY
 ======================================================================
 Raw Dataset: Steam Reviews Dataset 2021 (najzeko) + Steam Store Games (nikdavis)
 Documented Raw Size: ~5.32 GB compressed / 8.17 GB uncompressed

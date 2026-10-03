@@ -1,15 +1,13 @@
-# Video Game Clustering Analysis — Arvind's Interpretation, Visualization & Inference Report
+# Video Game Clustering Analysis — Cluster Interpretation & Inference Report
 
 **Project Title:** Video Games Clustering Based on Price, Rating, Popularity, and Playtime Using K-Means  
-**Team Member:** Arvind (Visualization, Cluster Interpretation, Inference & Limitations Lead)  
-**Collaborator:** Akilan (Data Engineering, Spark Pipeline, Scaling, Model Training & Evaluation Lead)  
-**Live Interactive Dashboard:** 👉 [https://therealakilan220.github.io/Video-Games-Analysis/](https://therealakilan220.github.io/Video-Games-Analysis/)  
+**Domain:** Big Data Machine Learning & Game Commercial Analytics  
 
 ---
 
-## 1. Data Verification & Quality Check (Handoff from Akilan)
+## 1. Data Verification & Quality Check
 
-As part of the role handoff, all exported summary tables and clustered data from Akilan's Big Data PySpark pipeline have been validated:
+All exported summary tables and clustered data from the Big Data PySpark pipeline have been validated:
 
 | Metric / Table | Source File | Value / Status | Verification Notes |
 |---|---|---|---|
@@ -126,27 +124,3 @@ pie title Cluster Size Distribution (Total = 318 Games)
 * **Price Dynamics & Sales:** Metadata reflects standard listing prices; historical seasonal sales, bundles, or promotional giveaways (e.g., free weekends) are not fully captured.
 * **Game Age & Playtime Accumulation:** Older games (e.g., *Skyrim* released in 2011) have had over a decade to accumulate total playtime and reviews compared to newer releases.
 * **Corrupted Playtime Outliers:** Aggregation required strict filtering ($\le 10,000$ hours) to eliminate corrupted Steam timestamp records.
-
----
-
-## 8. Arvind's Presentation Speaking Script
-
-```
-1. [Slide 1: Overview & Cluster Distribution]
-   "Hello everyone. Building on Akilan's PySpark data processing and K-Means modeling, 
-    our unsupervised clustering on 40.8 million Steam reviews grouped games into 4 distinct profiles..."
-
-2. [Slide 2: Cluster Profiles & Key Metrics]
-   "Cluster 0 represents 'Budget & Free-to-Play Hits' with near-perfect 95.6% ratings and low prices.
-    Cluster 1 captures 'Mid-Tier Indie Favorites' with dedicated followings.
-    Cluster 2 isolates 'Underperforming/Poorly-Rated Titles' with ratings under 38%.
-    Cluster 3 represents 'AAA Blockbusters and Endless Time-Sinks' averaging over 224 hours of playtime."
-
-3. [Slide 3: Visualizations & Representative Games]
-   "Looking at our 2D scatter plot, we clearly observe how playtime and rating separate viral hits like 
-    'Among Us' from massive time-sinks like 'Skyrim' and 'Factorio'..."
-
-4. [Slide 4: Key Inferences & Limitations]
-   "Our primary takeaway is that player satisfaction is highest in low-barrier, highly polished games. 
-    However, we must account for limitations such as review sentiment bias and game age accumulation."
-```
