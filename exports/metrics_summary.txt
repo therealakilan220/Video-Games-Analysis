@@ -1,0 +1,29 @@
+BDE CLUSTERING PROJECT - AKILAN METRICS & MODEL HANDOFF SUMMARY
+======================================================================
+Raw Dataset: Steam Reviews Dataset 2021 (najzeko) + Steam Store Games (nikdavis)
+Documented Raw Size: ~5.32 GB compressed / 8.17 GB uncompressed
+Total Raw Reviews Processed: 40,848,659
+Total Unique Games in Final ML Feature Table: 318
+
+Final Clustering Results:
+- Algorithm: K-Means (Spark MLlib)
+- Selected K: 4
+- Features Used: Price ($), Rating Percent (%), Popularity (Total Reviews Proxy), Playtime (Hours)
+- Scaling: Log-transform + StandardScaler (Mean=0, Std=1)
+- Final Within-Set Sum of Squared Errors (WSSSE Cost): 537.02
+- Final Silhouette Score: 0.4663
+
+Cluster Distribution:
+ cluster_id  game_count
+          0          56
+          1         117
+          2          30
+          3         115
+
+Cluster Feature Statistics:
+ cluster_id  count  avg_price  median_price  avg_rating_percent  median_rating_percent  avg_popularity_reviews  median_popularity_reviews  avg_playtime_hours  median_playtime_hours
+          0     56       3.12          0.00               95.63                  97.16                43872.84                      29982               36.91                  21.63
+          1    117      22.10         18.99               86.41                  89.76                 6638.77                       4570               53.95                  38.48
+          2     30       7.23          0.00               37.15                  38.06                 4399.47                       2860               59.31                  21.60
+          3    115      24.96         22.99               89.69                  91.82               116563.83                      53546              224.23                 156.36
+======================================================================

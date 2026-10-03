@@ -1,0 +1,5 @@
+cluster_id,count,avg_price,median_price,avg_rating_percent,median_rating_percent,avg_popularity_reviews,median_popularity_reviews,avg_playtime_hours,median_playtime_hours
+0,56,3.12,0.0,95.63,97.16,43872.84,29982,36.91,21.63
+1,117,22.1,18.99,86.41,89.76,6638.77,4570,53.95,38.48
+2,30,7.23,0.0,37.15,38.06,4399.47,2860,59.31,21.6
+3,115,24.96,22.99,89.69,91.82,116563.83,53546,224.23,156.36

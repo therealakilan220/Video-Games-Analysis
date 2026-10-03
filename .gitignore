@@ -1,0 +1,25 @@
+# Python & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Large Datasets (Kaggle cache & raw 8GB files)
+data/raw/
+data/metadata/
+*.csv.zip
+*.tar.gz
+*.parquet
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Spark logs and Derby
+metastore_db/
+derby.log
+spark-warehouse/
